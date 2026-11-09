@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>测测你在友情里是什么人格</title>
+<style>
+  :root {
+    --bg: #FFF7F0; --card: #FFFFFF; --ink: #4A3F38; --soft: #9B8B80;
+    --coral: #E8836B; --coral-deep: #D96A50; --peach: #FFE3D6; --line: #F2E4DA;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh; max-width: 480px; margin: 0 auto; overflow-x: hidden;
+  }
+  .page { display:none; padding: 24px 20px 40px; animation: fade .35s ease; }
+  .page.show { display:block; }
+  @keyframes fade { from {opacity:0; transform:translateY(8px);} to {opacity:1; transform:none;} }
+
+  /* 首页 */
+  .home { padding-top: 72px; text-align:center; }
+  .home .emoji { font-size: 56px; }
+  .home h1 { font-size: 30px; line-height:1.35; margin: 20px 0 12px; letter-spacing:1px; }
+  .home .sub { color: var(--soft); font-size: 15px; line-height:1.7; }
+  .home .meta { margin-top: 28px; color: var(--soft); font-size: 13px; }
+  .btn {
+    display:block; width:100%; padding: 16px; border:none; border-radius: 28px;
+    background: var(--coral); color:#fff; font-size: 17px; letter-spacing: 2px;
+    margin-top: 36px; cursor:pointer; box-shadow: 0 8px 20px rgba(232,131,107,.35);
+  }
+  .btn:active { background: var(--coral-deep); }
+  .btn.ghost { background:transparent; color:var(--soft); box-shadow:none; border:1px solid var(--line); margin-top:14px; font-size:14px; letter-spacing:1px; }
+
+  /* 答题 */
+  .progress-wrap { display:flex; align-items:center; gap: 10px; margin-bottom: 26px; }
+  .progress-bar { flex:1; height: 6px; background: var(--peach); border-radius: 3px; overflow:hidden; }
+  .progress-bar i { display:block; height:100%; width:0; background: var(--coral); border-radius:3px; transition: width .3s ease; }
+  .progress-num { font-size: 12px; color: var(--soft); min-width: 46px; text-align:right; }
+  .qtext { font-size: 20px; line-height: 1.6; margin: 8px 0 26px; font-weight: 600; }
+  .opt {
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+    padding: 15px 16px; margin-bottom: 12px; font-size: 15px; line-height:1.55;
+    cursor:pointer; transition: all .15s ease; color: var(--ink);
+  }
+  .opt:active { border-color: var(--coral); background: var(--peach); }
+  .back {
+    display:none; margin: 18px auto 0; background:transparent; border:none;
+    color: var(--soft); font-size: 14px; letter-spacing: 1px; cursor:pointer; padding: 8px 16px;
+  }
+  .back.show { display:block; }
+  /* 校验码 */
+  .gate { margin-top: 30px; }
+  .gate-tip { color: var(--soft); font-size: 14px; letter-spacing: 2px; margin-bottom: 12px; }
+  .code-input {
+    width: 200px; padding: 14px 0; text-align: center; font-size: 30px; letter-spacing: 12px;
+    text-indent: 12px; border: 1.5px solid var(--line); border-radius: 16px; outline: none;
+    background: var(--card); color: var(--ink); font-family: inherit;
+  }
+  .code-input:focus { border-color: var(--coral); }
+  .gate-err { color: #D9534F; font-size: 13px; height: 20px; margin-top: 8px; }
+  .gate-note { color: var(--soft); font-size: 12px; line-height: 1.8; margin-top: 18px; }
+  .gate-note.ok { color: var(--coral-deep); }
+  .gate .btn { margin-top: 14px; }
+
+  /* 结果页 */
+  .result-head { text-align:center; padding-top: 26px; }
+  .result-head .label { color: var(--soft); font-size: 14px; letter-spacing: 4px; }
+  .result-head .name { font-size: 38px; font-weight: 700; color: var(--coral-deep); margin: 10px 0 4px; letter-spacing:2px; }
+  .result-head .sig { color: var(--ink); font-size: 16px; margin-top: 8px; line-height:1.6; }
+  .card {
+    background: var(--card); border-radius: 20px; padding: 22px 20px; margin-top: 26px;
+    box-shadow: 0 6px 24px rgba(74,63,56,.06);
+  }
+  .dimrow { display:flex; justify-content:space-between; align-items:center; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
+  .dimrow:last-child { border-bottom:none; }
+  .dimrow .stars { color: var(--coral); letter-spacing: 2px; font-size: 15px; }
+  .blind { margin-top: 20px; padding: 14px 16px; background: var(--bg); border-radius: 14px; font-size: 14px; line-height: 1.8; color: var(--soft); }
+  .blind b { color: var(--ink); display:block; margin-bottom: 4px; font-size:13px; letter-spacing:2px; }
+  .share-tip { text-align:center; color: var(--soft); font-size: 13px; margin-top: 18px; line-height:1.7; }
+  #shot { display:none; }
+</style>
+</head>
+<body>
+
+<!-- 首页 -->
+<div class="page home show" id="pgHome">
+  <div class="emoji">🫧</div>
+  <h1>测测你在友情里<br>是什么人格</h1>
+  <div class="sub">30 道题，看看你是树洞所长<br>还是快乐搭子</div>
+  <div class="meta">约需 5 分钟 · 结果供你参考与自查</div>
+  <div class="gate" id="gate">
+    <div class="gate-tip">请输入 4 位数字校验码</div>
+    <input id="codeInput" class="code-input" type="tel" maxlength="4" inputmode="numeric" autocomplete="off" placeholder="····">
+    <div class="gate-err" id="gateErr"></div>
+    <button class="btn" onclick="checkCode()">验 证 校 验 码</button>
+    <div class="gate-note">测试不限使用次数和时间<br>如有问题请第一时间联系客服帮您解决~</div>
+  </div>
+  <div id="startArea" style="display:none">
+    <button class="btn" onclick="startQuiz()">开 始 测 试</button>
+    <div class="gate-note ok">校验通过，祝各位宝子生活愉快！</div>
+  </div>
+</div>
+
+<!-- 答题页 -->
+<div class="page" id="pgQuiz">
+  <div class="progress-wrap">
+    <div class="progress-bar"><i id="pbar"></i></div>
+    <div class="progress-num" id="pnum">1/30</div>
+  </div>
+  <div class="qtext" id="qtext"></div>
+  <div id="opts"></div>
+  <button class="back" id="backBtn" onclick="goBack()">← 返回上一题</button>
+</div>
+
+<!-- 结果页 -->
+<div class="page" id="pgResult">
+  <div class="result-head">
+    <div class="label">我的友情人格</div>
+    <div class="name" id="rname"></div>
+    <div class="sig" id="rsig"></div>
+  </div>
+  <div class="card">
+    <div id="rdims"></div>
+    <div class="blind"><b>小 提 醒</b><span id="rblind"></span></div>
+  </div>
+  <div class="share-tip">长按屏幕截图，保存你的友情人格卡<br>去测测你最好的朋友是什么人格吧</div>
+  <button class="btn" onclick="saveShot()">保 存 结 果 图</button>
+  <button class="btn ghost" onclick="location.reload()">再测一次</button>
+  <canvas id="shot" width="750" height="1100"></canvas>
+</div>
+
+<script>
+const QUIZ = {"questions": [{"id": 1, "q": "周五晚上，朋友群安静了一整天，你会？", "options": [{"t": "直接发起新局，@所有人", "pull": {"k": 2, "n": -1}, "sig": ["r4"]}, {"t": "私聊那个最聊得来的，两个人小聚", "pull": {"n": 2, "k": -1}, "sig": ["r8"]}, {"t": "等人先开口，来约就去", "pull": {"k": -2}, "sig": ["r1", "r7"]}, {"t": "正好，攒了一周的剧要补", "pull": {"n": -1, "f": 1}, "sig": ["r9"]}]}, {"id": 2, "q": "朋友第三次跟你吐槽同一个人，你？", "options": [{"t": "照样认真听完，先接住情绪", "pull": {"d": -2, "t": -1}, "sig": ["r1"]}, {"t": "直接直白提醒：一直重复吐槽解决不了问题", "pull": {"d": 2, "t": 2}, "sig": ["r5"]}, {"t": "帮TA分析利弊，这次给个方案", "pull": {"t": 1}, "sig": ["r10"]}, {"t": "嗯嗯啊啊应付，心里已经累了", "pull": {"d": -1, "t": -2}, "sig": ["r7"]}]}, {"id": 3, "q": "你和好朋友同时喜欢上了一个人，你？", "options": [{"t": "摊开说，公平竞争", "pull": {"t": 2, "d": 1}, "sig": ["r2", "r5"]}, {"t": "默默退出，友情比感情重要", "pull": {"d": -2, "f": 1}, "sig": ["r7"]}, {"t": "谁也不说，自己消化", "pull": {"t": -2}, "sig": ["r8"]}, {"t": "先看TA的态度再决定", "pull": {"k": -1, "d": -1}, "sig": ["r1"]}]}, {"id": 4, "q": "朋友找你借一笔中等数额的钱，承诺下个月归还，你？", "options": [{"t": "直接转，开口一次不容易", "pull": {"d": -2}, "sig": ["r1", "r7"]}, {"t": "可以，但欠条照写——朋友归朋友，账要清楚", "pull": {"d": 2, "t": 1}, "sig": ["r5"]}, {"t": "借 500 说不用还，把数额划在自己舒服的线内", "pull": {"d": 1, "f": 1}, "sig": ["r3"]}, {"t": "装没看见，就当消息没发过", "pull": {"n": -1, "f": 2, "t": -1}, "sig": ["r9"]}]}, {"id": 5, "q": "和朋友旅行，TA 屡次长时间迟到耽误行程，最后一天你？", "options": [{"t": "当面说清楚：明天集合，别再迟到", "pull": {"t": 2}, "sig": ["r2", "r5"]}, {"t": "忍着不说，心里决定再也不约了", "pull": {"t": -2, "f": 2}, "sig": ["r3"]}, {"t": "开玩笑点出来，不伤面子", "pull": {"t": 1, "d": -1}, "sig": ["r10"]}, {"t": "算了，出来玩开心最重要", "pull": {"f": 1, "n": -1}, "sig": ["r9"]}]}, {"id": 6, "q": "你搬家或者生病需要人搭把手时，第一个想到的是？", "options": [{"t": "那个平时话不多、但一定会来的老友", "pull": {"n": 2}, "sig": ["r8"]}, {"t": "谁有空找谁，不麻烦特定的人", "pull": {"n": -2, "d": -1}, "sig": ["r9"]}, {"t": "尽量谁都不麻烦，自己扛", "pull": {"d": -2, "k": -1}, "sig": ["r7"]}, {"t": "那个会帮你把事安排得明明白白的人", "pull": {"k": -1, "t": 1}, "sig": ["r10"]}]}, {"id": 7, "q": "群里两个朋友吵起来了，火药味很重，你？", "options": [{"t": "私下两头劝，把局保住", "pull": {"t": 2, "d": -1}, "sig": ["r10"]}, {"t": "群里直接说：有话好好说", "pull": {"t": 2, "k": 1}, "sig": ["r2"]}, {"t": "不站队，默默潜水看发展", "pull": {"t": -2}, "sig": ["r3"]}, {"t": "站该站的那边，不装和事佬", "pull": {"d": 1, "t": 1}, "sig": ["r2", "r5"]}]}, {"id": 8, "q": "你发了一条流露低落情绪的公开动态，你其实希望？", "options": [{"t": "有人立刻私聊问你怎么了", "pull": {"k": -2, "n": 1}, "sig": ["r1"]}, {"t": "只是想说出来，不想被追问，过一会儿就删掉", "pull": {"t": -2, "f": -1}, "sig": ["r8", "r6"]}, {"t": "点赞的每一个人都算安慰", "pull": {"n": -1}, "sig": ["r9"]}, {"t": "比起「抱抱」，更想有人问一句：需要我做点什么", "pull": {"d": 1, "t": 1}, "sig": ["r5"]}]}, {"id": 9, "q": "很久没联系的老朋友，突然翻到你旧动态点赞，你？", "options": [{"t": "立刻私聊：最近怎么样", "pull": {"k": 2, "f": 1}, "sig": ["r4"]}, {"t": "心里动了一下，但忍住没发", "pull": {"f": -2, "k": -1}, "sig": ["r6"]}, {"t": "点回去一个赞，礼尚往来", "pull": {"f": 1, "n": -1}, "sig": ["r9"]}, {"t": "无感，划过去了", "pull": {"f": 2}, "sig": ["r3"]}]}, {"id": 10, "q": "友谊里最让你受不了的一件事是？", "options": [{"t": "被无视：消息发出去石沉大海", "pull": {"k": -1}, "sig": ["r1"]}, {"t": "被消耗：总是一方付出一方装死", "pull": {"d": -1, "t": -1}, "sig": ["r7"]}, {"t": "被越界：TA随便替你做决定", "pull": {"d": 2}, "sig": ["r5"]}, {"t": "被绑架：动不动就是「我们这么多年」", "pull": {"d": 1, "f": 1}, "sig": ["r3"]}]}, {"id": 11, "q": "答应朋友的事，你发现做不到，你会？", "options": [{"t": "提前跟TA说明难处，一起商量改期或换个办法", "pull": {"t": 1, "d": 1}, "sig": ["r5"]}, {"t": "先自己扛着，实在扛不住了才说", "pull": {"d": -2, "t": -1}, "sig": ["r7"]}, {"t": "心虚，干脆不回消息，拖到不了了之", "pull": {"t": -2, "f": 1}, "sig": ["r9"]}, {"t": "转头找别人帮忙顶上，不让TA知道", "pull": {"k": 1, "d": -1}, "sig": ["r10"]}]}, {"id": 12, "q": "你们吵架冷战到了第二天，你？", "options": [{"t": "忍不住主动发消息缓和气氛，哪怕主动开口不代表认错", "pull": {"t": 1, "d": -1}, "sig": ["r10", "r1"]}, {"t": "等对方先低头，不然就冷到底", "pull": {"t": -2, "d": 1}, "sig": ["r3"]}, {"t": "找个共同朋友递话，侧面缓和", "pull": {"t": 1, "k": -1}, "sig": ["r10"]}, {"t": "该吃吃该睡睡，时间会解决", "pull": {"f": 2, "t": -1}, "sig": ["r9"]}]}, {"id": 13, "q": "朋友迎来很好的喜事，而你正处在低谷，你？", "options": [{"t": "真心替TA高兴，约饭庆祝", "pull": {"k": 1, "f": 1}, "sig": ["r2", "r4"]}, {"t": "高兴是真的，但有点说不出的失落", "pull": {"f": -1, "n": 1}, "sig": ["r6"]}, {"t": "先减少联系，等自己状态好点再说", "pull": {"d": -1, "t": -1}, "sig": ["r7"]}, {"t": "没太大感觉，各过各的", "pull": {"n": -2}, "sig": ["r3"]}]}, {"id": 14, "q": "翻开你和朋友的聊天记录，聊得最深的是和谁？", "options": [{"t": "十年老友，从表情包聊到人生大事", "pull": {"n": 2, "f": -1}, "sig": ["r8"]}, {"t": "不同的搭子聊不同的群：健身、饭搭、剧本杀", "pull": {"n": -2}, "sig": ["r9"]}, {"t": "好友列表很长，个个聊得热络，但没人聊过心里话", "pull": {"n": -1, "k": 1}, "sig": ["r4"]}, {"t": "一段以前聊得很深、后来慢慢没声了的对话，一直没舍得删", "pull": {"f": -2}, "sig": ["r6"]}]}, {"id": 15, "q": "朋友做了让你不舒服的事，你的第一反应？", "options": [{"t": "当面问清楚，不带隔夜仇", "pull": {"t": 2}, "sig": ["r2"]}, {"t": "先怀疑是不是自己太敏感", "pull": {"d": -2, "t": -1}, "sig": ["r7"]}, {"t": "用距离表态：慢慢就不联系了", "pull": {"t": -2, "d": 1}, "sig": ["r3"]}, {"t": "先找另一个朋友吐槽一圈", "pull": {"t": -1, "n": -1}, "sig": ["r9"]}]}, {"id": 16, "q": "组局吃饭点菜的时候，你通常是？", "options": [{"t": "直接拍板：就这些，不够再加", "pull": {"k": 2}, "sig": ["r4"]}, {"t": "挨个问忌口，照顾到每个人", "pull": {"k": -1, "d": -1}, "sig": ["r10", "r7"]}, {"t": "你们点，我都行", "pull": {"k": -2}, "sig": ["r1", "r9"]}, {"t": "有想吃的会提，没有就随缘", "pull": {"d": 1}, "sig": ["r5"]}]}, {"id": 17, "q": "你现在的好朋友，大多是怎么来的？", "options": [{"t": "一起扛过事的，战友情", "pull": {"n": 1, "t": 1}, "sig": ["r2"]}, {"t": "从小玩到大，时间筛出来的", "pull": {"n": 2, "f": -1}, "sig": ["r8"]}, {"t": "各阶段认识的各种人，来来去去", "pull": {"n": -2, "f": 1}, "sig": ["r9"]}, {"t": "大多是我主动认识来的，看人挺准", "pull": {"k": 1, "n": 1}, "sig": ["r4"]}]}, {"id": 18, "q": "朋友向你倾诉：TA暗恋的人正好是你的前任，你？", "options": [{"t": "照常听，感情归感情，界限归界限", "pull": {"d": 2}, "sig": ["r5"]}, {"t": "表面淡定，心里开始别扭", "pull": {"d": -1, "t": -2}, "sig": ["r7"]}, {"t": "直接坦白：说别的都行，这个我心里过不去", "pull": {"d": 1, "t": 1}, "sig": ["r3"]}, {"t": "打哈哈岔开话题", "pull": {"t": -1, "n": -1}, "sig": ["r9"]}]}, {"id": 19, "q": "一场旧相识聚会，你昔日最重要的朋友没有到场，你？", "options": [{"t": "会后私聊TA：今天怎么没来，挺想你的", "pull": {"k": 2, "f": 1}, "sig": ["r4"]}, {"t": "看着那个空位，心里空了一下", "pull": {"f": -2}, "sig": ["r6"]}, {"t": "无所谓，本来就疏远了", "pull": {"f": 2}, "sig": ["r3"]}, {"t": "和在场的老同学玩得最开心，散场还加了个聊得来的新微信", "pull": {"n": -2, "f": 1}, "sig": ["r9"]}]}, {"id": 20, "q": "你心里的「最好的朋友」应该是？", "options": [{"t": "那个唯一懂你沉默的人", "pull": {"n": 2}, "sig": ["r8"]}, {"t": "一群合拍的人，不必只有一两个", "pull": {"n": -2}, "sig": ["r9"]}, {"t": "互相成全，又不互相亏欠", "pull": {"d": 1, "t": 1}, "sig": ["r5"]}, {"t": "可能还没出现，但你一直在等", "pull": {"f": -1}, "sig": ["r6"]}]}, {"id": 21, "q": "朋友安利给你的东西，你试了觉得一般，TA问怎么样，你？", "options": [{"t": "实话实说：感觉一般，不太推荐", "pull": {"d": 1, "t": 1}, "sig": ["r5"]}, {"t": "挺好的，挺好的", "pull": {"d": -2}, "sig": ["r7", "r1"]}, {"t": "我觉得一般，不过因人而异，可能只是不太适合我", "pull": {"t": -1}, "sig": ["r10"]}, {"t": "敷衍过去，赶紧转移话题", "pull": {"t": -1, "f": 1}, "sig": ["r9"]}]}, {"id": 22, "q": "你换了头像和签名，一整天没人注意到，你？", "options": [{"t": "无所谓，我自己知道就行", "pull": {"d": 1, "f": 1}, "sig": ["r3"]}, {"t": "有点失落，但不会说", "pull": {"d": -1, "t": -1}, "sig": ["r7"]}, {"t": "直接在群里@所有人：没人发现我换头像吗", "pull": {"k": 2}, "sig": ["r4"]}, {"t": "反复点开聊天列表，看有没有人来问我", "pull": {"f": -2}, "sig": ["r6"]}]}, {"id": 23, "q": "朋友想要借用你很珍视、价值很高的私人物品，你的态度？", "options": [{"t": "都行，东西就是拿来用的", "pull": {"d": -2}, "sig": ["r1", "r7"]}, {"t": "看人：靠谱的随便借", "pull": {"n": 1}, "sig": ["r8"]}, {"t": "明确不借，丑话说在前头不伤感情", "pull": {"d": 2}, "sig": ["r3", "r5"]}, {"t": "可以借，但先讲清楚坏了怎么赔", "pull": {"d": 1, "t": 1}, "sig": ["r5"]}]}, {"id": 24, "q": "你的秘密一般告诉谁？", "options": [{"t": "那个永远不会说出去的人", "pull": {"n": 2}, "sig": ["r8"]}, {"t": "不同的事，告诉不同的朋友", "pull": {"n": -1, "k": 1}, "sig": ["r9", "r4"]}, {"t": "烂在肚子里，谁也不说", "pull": {"d": 1, "t": -1}, "sig": ["r3"]}, {"t": "写在备忘录里，隔段时间翻出来自己看看", "pull": {"t": -2, "f": -1}, "sig": ["r6"]}]}, {"id": 25, "q": "朋友的另一半讨厌你，暗示TA别跟你来往，你？", "options": [{"t": "我行我素：我的朋友我做主", "pull": {"d": 2, "t": 1}, "sig": ["r2"]}, {"t": "不让TA夹在中间为难，我主动退一步少联系", "pull": {"d": -1, "f": 1}, "sig": ["r7"]}, {"t": "直接找朋友问清楚：你到底是什么立场", "pull": {"t": 2, "d": 1}, "sig": ["r5"]}, {"t": "不吵不闹，联系自然变少，走了也不挽留", "pull": {"t": -2, "f": 2}, "sig": ["r3"]}]}, {"id": 26, "q": "你删过朋友的好友吗？", "options": [{"t": "从来不删，全留着", "pull": {"f": -2}, "sig": ["r6"]}, {"t": "删过，定期断舍离", "pull": {"f": 2, "d": 1}, "sig": ["r3"]}, {"t": "只删广告号和微商", "pull": {"d": 1}, "sig": ["r5"]}, {"t": "想删过，但一直没下手", "pull": {"f": -1, "d": -1}, "sig": ["r6", "r7"]}]}, {"id": 27, "q": "朋友聚会拍合照的时候，你通常是？", "options": [{"t": "希望站画面中间，成为照片的焦点", "pull": {"k": 2}, "sig": ["r4"]}, {"t": "帮所有人拍的那个人", "pull": {"k": -1, "d": -1}, "sig": ["r7"]}, {"t": "站边上，随缘", "pull": {"k": -1, "n": -1}, "sig": ["r3"]}, {"t": "负责活跃气氛、摆搞怪姿势的那个", "pull": {"n": -1, "t": 1}, "sig": ["r9"]}]}, {"id": 28, "q": "如果友情是一份存款，你觉得自己目前是？", "options": [{"t": "只存不取：为朋友做了很多，很少开口求回报", "pull": {"d": -2}, "sig": ["r7"]}, {"t": "存取平衡，心里有杆秤", "pull": {"d": 1, "t": 1}, "sig": ["r5"]}, {"t": "从不记账，为朋友花钱花时间全凭心情", "pull": {"k": 1, "n": -1}, "sig": ["r4"]}, {"t": "对唯一那个人无上限", "pull": {"n": 2}, "sig": ["r8"]}]}, {"id": 29, "q": "你怎么看「朋友越来越少」这件事？", "options": [{"t": "正常，留下来的都是金子", "pull": {"f": 1, "n": 1}, "sig": ["r8", "r3"]}, {"t": "有点伤感，但不多想", "pull": {"f": -1}, "sig": ["r6"]}, {"t": "主动扩列，新朋友源源不断", "pull": {"k": 2, "n": -1}, "sig": ["r4"]}, {"t": "一个人反而更自在", "pull": {"n": -2, "f": 1}, "sig": ["r3"]}]}, {"id": 30, "q": "深夜，朋友发来消息只问两个字：「在吗」，你？", "options": [{"t": "秒回：说", "pull": {"k": 1}, "sig": ["r1", "r2"]}, {"t": "看到了，装睡，明天再说", "pull": {"t": -1, "f": 1}, "sig": ["r3", "r9"]}, {"t": "回：我在，怎么了", "pull": {"d": -1, "n": 1}, "sig": ["r1"]}, {"t": "心里咯噔一下，盯着屏幕犹豫要不要回", "pull": {"t": -1}, "sig": ["r6", "r7"]}]}], "results": {"r1": {"name": "树洞所长", "coord": [-0.7, -2.6, 0.1, 1.5, -0.7]}, "r2": {"name": "护友前锋", "coord": [0.2, 1.7, 1.8, 1.7, 1.0]}, "r3": {"name": "君子之交", "coord": [-0.4, 2.0, 1.7, -1.9, 1.1]}, "r4": {"name": "组局担当", "coord": [1.0, -2.2, 0.3, -1.6, 0.6]}, "r5": {"name": "清醒合伙人", "coord": [2.0, 1.7, 1.9, -1.0, 0.2]}, "r6": {"name": "回忆守门人", "coord": [0.0, 0.9, -2.3, 0.6, -1.1]}, "r7": {"name": "隐形付出型", "coord": [0.0, -2.6, -2.5, 0.0, 0.3]}, "r8": {"name": "慢热老汤", "coord": [0.4, 0.3, -2.5, 1.5, 1.9]}, "r9": {"name": "快乐搭子", "coord": [0.6, -0.1, -2.5, -2.2, 2.0]}, "r10": {"name": "朋友圈粘合剂", "coord": [-0.3, 1.9, 2.2, 1.1, -1.4]}}, "dims": ["k", "d", "t", "n", "f"], "dimNames": {"k": "开口度", "d": "底线感", "t": "摊牌度", "n": "浓度", "f": "翻篇度"}};
+const DIMS = QUIZ.dims, DIMN = QUIZ.dimNames, RES = QUIZ.results;
+
+let idx = 0, picks = [];
+
+function $(id){ return document.getElementById(id); }
+function show(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  $(pg).classList.add('show');
+  window.scrollTo(0,0);
+}
+
+function startQuiz(){ idx = 0; picks = []; renderQ(); show('pgQuiz'); }
+
+/* ===== 校验码（改在这里换码）===== */
+const CODE = '9788';
+function checkCode(){
+  const v = ($('codeInput').value || '').trim();
+  if (v === CODE) {
+    $('gate').style.display = 'none';
+    $('startArea').style.display = 'block';
+    $('gateErr').textContent = '';
+  } else {
+    $('gateErr').textContent = '校验码不对，请注意不能有空格，再试一次';
+    $('codeInput').value = '';
+    $('codeInput').focus();
+  }
+}
+$('codeInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkCode(); });
+
+function renderQ(){
+  const q = QUIZ.questions[idx];
+  $('pbar').style.width = (idx / QUIZ.questions.length * 100) + '%';
+  $('pnum').textContent = (idx+1) + '/' + QUIZ.questions.length;
+  $('qtext').textContent = q.q;
+  const box = $('opts'); box.innerHTML = '';
+  q.options.forEach((o, i) => {
+    const d = document.createElement('div');
+    d.className = 'opt'; d.textContent = o.t;
+    d.onclick = () => pick(i);
+    box.appendChild(d);
+  });
+  $('backBtn').classList.toggle('show', idx > 0);
+}
+
+function goBack(){
+  if (idx === 0) return;
+  idx--;
+  picks.pop();
+  renderQ();
+}
+
+function pick(i){
+  picks.push(QUIZ.questions[idx].options[i]);
+  idx++;
+  if (idx < QUIZ.questions.length) renderQ();
+  else { $('pbar').style.width = '100%'; calcResult(); }
+}
+
+/* 计分：与题库 meta.scoring 完全一致 */
+function calcResult(){
+  const sums = {k:0,d:0,t:0,n:0,f:0}, maxabs = {k:0,d:0,t:0,n:0,f:0};
+  QUIZ.questions.forEach(q => q.options.forEach(o => {
+    for (const k in o.pull) maxabs[k] = Math.max(maxabs[k], Math.abs(o.pull[k]));
+  }));
+  picks.forEach(o => { for (const k in o.pull) sums[k] += o.pull[k]; });
+  const coord = DIMS.map(k => {
+    const cap = maxabs[k] * QUIZ.questions.length * 0.6;
+    return Math.max(-5, Math.min(5, sums[k] / cap * 5));
+  });
+  const ids = Object.keys(RES);
+  let best = null, bd = Infinity;
+  ids.forEach(r => {
+    const c = RES[r].coord;
+    const d2 = DIMS.reduce((s,_,i) => s + (coord[i]-c[i])**2, 0);
+    if (d2 < bd || (d2 === bd && best && parseInt(r.slice(1)) < parseInt(best.slice(1)))) { bd = d2; best = r; }
+  });
+  renderResult(best, coord);
+}
+
+function stars(v){ return v > 1.5 ? '★★★' : (v < -1.5 ? '★☆☆' : '★★☆'); }
+
+function renderResult(rid, coord){
+  const r = RES[rid];
+  $('rname').textContent = r.name;
+  const meta = CARDS[rid];
+  $('rsig').textContent = meta.sig;
+  $('rblind').textContent = meta.blind;
+  $('rdims').innerHTML = DIMS.map((k,i) =>
+    '<div class="dimrow"><span>我的' + DIMN[k] + '</span><span class="stars">' + stars(coord[i]) + '</span></div>'
+  ).join('');
+  window._lastResult = { rid, name: r.name, coord: coord.slice() };
+  show('pgResult');
+}
+
+function saveShot(){
+  const c = $('shot'), x = c.getContext('2d');
+  const { name } = window._lastResult;
+  x.fillStyle = '#FFF7F0'; x.fillRect(0,0,750,1100);
+  x.fillStyle = '#E8836B'; x.font = '600 30px sans-serif'; x.textAlign='center';
+  x.fillText('🫧', 375, 150);
+  x.fillStyle = '#9B8B80'; x.font = '26px sans-serif';
+  x.fillText('我 的 友 情 人 格', 375, 250);
+  x.fillStyle = '#D96A50'; x.font = 'bold 76px sans-serif';
+  x.fillText(name, 375, 360);
+  const meta = CARDS[window._lastResult.rid];
+  x.fillStyle = '#4A3F38'; x.font = '30px sans-serif';
+  wrap(x, meta.sig, 375, 440, 560, 44);
+  const dimNames = ['开口度','底线感','摊牌度','浓度','翻篇度'];
+  x.textAlign = 'left';
+  window._lastResult.coord.forEach((v,i) => {
+    const y = 560 + i*78;
+    x.fillStyle = '#FFFFFF'; roundRect(x, 95, y-38, 560, 64, 16); x.fill();
+    x.fillStyle = '#4A3F38'; x.font = '28px sans-serif';
+    x.fillText('我的' + dimNames[i], 130, y+8);
+    x.fillStyle = '#E8836B'; x.font = '28px sans-serif'; x.textAlign='right';
+    x.fillText(stars(v), 620, y+8); x.textAlign='left';
+  });
+  x.textAlign='center';
+  x.fillStyle = '#9B8B80'; x.font = '24px sans-serif';
+  x.fillText('测测你最好的朋友是什么人格', 375, 1030);
+  const a = document.createElement('a');
+  a.download = '我的友情人格_' + name + '.png';
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+function wrap(x, text, cx, y, maxW, lh){
+  let line = '', yy = y;
+  for (const ch of text) {
+    if (x.measureText(line + ch).width > maxW) { x.fillText(line, cx, yy); line = ch; yy += lh; }
+    else line += ch;
+  }
+  if (line) x.fillText(line, cx, yy);
+}
+function roundRect(x, px, py, w, h, r){
+  x.beginPath(); x.moveTo(px+r,py);
+  x.arcTo(px+w,py,px+w,py+h,r); x.arcTo(px+w,py+h,px,py+h,r);
+  x.arcTo(px,py+h,px,py,r); x.arcTo(px,py,px+w,py,r); x.closePath();
+}
+</script>
+<script>
+/* 结果卡文案（签名 + 体面化盲区） */
+const CARDS = {
+  r1: { sig: "你的耳朵，是朋友们排队预约的地方。",
+        blind: "你接住了所有人的情绪，却很少给自己留一个位置——记得也当一回自己的树洞。" },
+  r2: { sig: "朋友受委屈时，你永远第一个站出来。",
+        blind: "你替朋友冲的锋，有时是TA自己想独自面对的——出手前问一句「需要我吗」。" },
+  r3: { sig: "不粘人，不亏欠，你的友情清澈见底。",
+        blind: "你的边界感保护了你，也偶尔挡住了想靠近的人。" },
+  r4: { sig: "没有你，朋友群会安静得像没人交话费。",
+        blind: "你组起了所有的局，却很少让人看见你也需要被组一次。" },
+  r5: { sig: "你的友情没有糊涂账，明算账才是真交情。",
+        blind: "你把关系经营得明明白白，但有些感情，恰恰是算不清才珍贵的。" },
+  r6: { sig: "别人往前跑，你替大家保管着来时的路。",
+        blind: "守着回忆很温柔，但别让回忆成了不交新朋友的理由。" },
+  r7: { sig: "你对朋友的好，都在TA看不见的地方。",
+        blind: "你从不伸手要回报，朋友不是不想给，是真的不知道你需要。" },
+  r8: { sig: "你的友情像老汤，越煮越有味，急不来。",
+        blind: "你筛朋友的标准很高，但别忘了，小火也能炖出好汤。" },
+  r9: { sig: "哪里有开心，哪里就有你，从不内耗。",
+        blind: "你把每一场都玩得很尽兴，偶尔也试试留一场给走心的。" },
+  r10:{ sig: "朋友圈的裂缝，都是你在悄悄粘上。",
+        blind: "你总在替所有人圆场，但有的架，让他们自己吵完反而更好。" }
+};
+</script>
+</body>
+</html>
