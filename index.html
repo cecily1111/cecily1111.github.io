@@ -73,8 +73,10 @@
     background: var(--card); border-radius: 20px; padding: 22px 20px; margin-top: 26px;
     box-shadow: 0 6px 24px rgba(74,63,56,.06);
   }
-  .dimrow { display:flex; justify-content:space-between; align-items:center; padding: 9px 0; border-bottom: 1px dashed var(--line); font-size: 15px; }
-  .dimrow:last-child { border-bottom:none; }
+  .dimblock { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .dimblock:last-child { border-bottom:none; }
+  .dimrow { display:flex; justify-content:space-between; align-items:center; font-size: 15px; }
+  .dimnote { color: var(--soft); font-size: 13px; line-height: 1.6; margin-top: 5px; }
   .dimrow .stars { color: var(--coral); letter-spacing: 2px; font-size: 15px; }
   .blind { margin-top: 20px; padding: 14px 16px; background: var(--bg); border-radius: 14px; font-size: 14px; line-height: 1.8; color: var(--soft); }
   .blind b { color: var(--ink); display:block; margin-bottom: 4px; font-size:13px; letter-spacing:2px; }
@@ -128,7 +130,7 @@
   <div class="share-tip">长按屏幕截图，保存你的友情人格卡<br>去测测你最好的朋友是什么人格吧</div>
   <button class="btn" onclick="saveShot()">保 存 结 果 图</button>
   <button class="btn ghost" onclick="location.reload()">再测一次</button>
-  <canvas id="shot" width="750" height="1100"></canvas>
+  <canvas id="shot" width="750" height="1200"></canvas>
 </div>
 
 <script>
@@ -220,9 +222,11 @@ function renderResult(rid, coord){
   const meta = CARDS[rid];
   $('rsig').textContent = meta.sig;
   $('rblind').textContent = meta.blind;
-  $('rdims').innerHTML = DIMS.map((k,i) =>
-    '<div class="dimrow"><span>我的' + DIMN[k] + '</span><span class="stars">' + stars(coord[i]) + '</span></div>'
-  ).join('');
+  $('rdims').innerHTML = DIMS.map((k,i) => {
+    const lv = coord[i] > 1.5 ? 'high' : (coord[i] < -1.5 ? 'low' : 'mid');
+    return '<div class="dimblock"><div class="dimrow"><span>我的' + DIMN[k] + '</span><span class="stars">' + stars(coord[i]) + '</span></div>'
+      + '<div class="dimnote">' + DIMTEXT[k][lv] + '</div></div>';
+  }).join('');
   window._lastResult = { rid, name: r.name, coord: coord.slice() };
   show('pgResult');
 }
@@ -230,7 +234,7 @@ function renderResult(rid, coord){
 function saveShot(){
   const c = $('shot'), x = c.getContext('2d');
   const { name } = window._lastResult;
-  x.fillStyle = '#FFF7F0'; x.fillRect(0,0,750,1100);
+  x.fillStyle = '#FFF7F0'; x.fillRect(0,0,750,1200);
   x.fillStyle = '#E8836B'; x.font = '600 30px sans-serif'; x.textAlign='center';
   x.fillText('🫧', 375, 150);
   x.fillStyle = '#9B8B80'; x.font = '26px sans-serif';
@@ -243,16 +247,19 @@ function saveShot(){
   const dimNames = ['开口度','底线感','摊牌度','浓度','翻篇度'];
   x.textAlign = 'left';
   window._lastResult.coord.forEach((v,i) => {
-    const y = 560 + i*78;
-    x.fillStyle = '#FFFFFF'; roundRect(x, 95, y-38, 560, 64, 16); x.fill();
+    const y = 560 + i*100;
+    x.fillStyle = '#FFFFFF'; roundRect(x, 95, y-38, 560, 86, 16); x.fill();
     x.fillStyle = '#4A3F38'; x.font = '28px sans-serif';
-    x.fillText('我的' + dimNames[i], 130, y+8);
+    x.fillText('我的' + dimNames[i], 130, y+2);
     x.fillStyle = '#E8836B'; x.font = '28px sans-serif'; x.textAlign='right';
-    x.fillText(stars(v), 620, y+8); x.textAlign='left';
+    x.fillText(stars(v), 620, y+2); x.textAlign='left';
+    const lv = v > 1.5 ? 'high' : (v < -1.5 ? 'low' : 'mid');
+    x.fillStyle = '#9B8B80'; x.font = '21px sans-serif';
+    x.fillText(DIMTEXT[DIMS[i]][lv], 130, y+34);
   });
   x.textAlign='center';
   x.fillStyle = '#9B8B80'; x.font = '24px sans-serif';
-  x.fillText('测测你最好的朋友是什么人格', 375, 1030);
+  x.fillText('测测你最好的朋友是什么人格', 375, 1120);
   const a = document.createElement('a');
   a.download = '我的友情人格_' + name + '.png';
   a.href = c.toDataURL('image/png');
@@ -295,6 +302,25 @@ const CARDS = {
         blind: "你把每一场都玩得很尽兴，偶尔也试试留一场给走心的。" },
   r10:{ sig: "朋友圈的裂缝，都是你在悄悄粘上。",
         blind: "你总在替所有人圆场，但有的架，让他们自己吵完反而更好。" }
+};
+
+/* 维度星级的一句话总结（high=★★★ / mid=★★☆ / low=★☆☆） */
+const DIMTEXT = {
+  k: { high: "组局破冰都是你先开口，你的主动是朋友圈的暖气。",
+       mid:  "熟人面前放得开，生人面前慢半拍。",
+       low:  "你习惯等人先开口，可你等的人可能也在等你。" },
+  d: { high: "先把自己的账算清楚，再心软也不迟。",
+       mid:  "平时好说话，碰到底线才会说不。",
+       low:  "「不」字到了嘴边，又软着咽了回去。" },
+  t: { high: "有话当面说清，不让朋友猜。",
+       mid:  "小事随它去，大事才摊开讲。",
+       low:  "你把话往心里收，安静地消化。" },
+  n: { high: "朋友不在多，交过心的个个算数。",
+       mid:  "热闹能凑，知心也有几个。",
+       low:  "圈子铺得宽，交心的那几位还没到位。" },
+  f: { high: "闹过翻过，下次见面还是能笑。",
+       mid:  "当下会难受，睡一觉好大半。",
+       low:  "旧事你存得很久，放不放只问自己。" }
 };
 </script>
 </body>
