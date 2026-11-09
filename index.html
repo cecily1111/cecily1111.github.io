@@ -34,20 +34,25 @@
   .btn.ghost { background:transparent; color:var(--soft); box-shadow:none; border:1px solid var(--line); margin-top:14px; font-size:14px; letter-spacing:1px; }
 
   /* 答题 */
-  .progress-wrap { display:flex; align-items:center; gap: 10px; margin-bottom: 26px; }
+  #pgQuiz { padding: 24px 24px 44px; }
+  #pgQuiz.show { display:flex; flex-direction:column; min-height: calc(100vh - 0px); }
+  .quiz-body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .progress-wrap { display:flex; align-items:center; gap: 10px; margin-bottom: 10px; }
   .progress-bar { flex:1; height: 6px; background: var(--peach); border-radius: 3px; overflow:hidden; }
   .progress-bar i { display:block; height:100%; width:0; background: var(--coral); border-radius:3px; transition: width .3s ease; }
-  .progress-num { font-size: 12px; color: var(--soft); min-width: 46px; text-align:right; }
-  .qtext { font-size: 20px; line-height: 1.6; margin: 8px 0 26px; font-weight: 600; }
+  .progress-num { font-size: 14px; color: var(--soft); min-width: 52px; text-align:right; }
+  .qnum { color: var(--coral); font-size: 14px; font-weight: 700; letter-spacing: 4px; margin: 26px 0 12px; }
+  .qnum small { font-weight: 400; color: var(--soft); letter-spacing: 1px; margin-left: 10px; font-size: 12px; }
+  .qtext { font-size: 25px; line-height: 1.55; margin: 0 0 30px; font-weight: 700; }
   .opt {
-    background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
-    padding: 15px 16px; margin-bottom: 12px; font-size: 15px; line-height:1.55;
+    background: var(--card); border: 1.5px solid var(--line); border-radius: 18px;
+    padding: 18px 18px; margin-bottom: 14px; font-size: 17px; line-height:1.55;
     cursor:pointer; transition: all .15s ease; color: var(--ink);
   }
   .opt:active { border-color: var(--coral); background: var(--peach); }
   .back {
-    display:none; margin: 18px auto 0; background:transparent; border:none;
-    color: var(--soft); font-size: 14px; letter-spacing: 1px; cursor:pointer; padding: 8px 16px;
+    display:none; margin: 24px auto 0; background:transparent; border:none;
+    color: var(--soft); font-size: 15px; letter-spacing: 1px; cursor:pointer; padding: 8px 16px;
   }
   .back.show { display:block; }
   /* 校验码 */
@@ -81,6 +86,8 @@
   .blind { margin-top: 20px; padding: 14px 16px; background: var(--bg); border-radius: 14px; font-size: 14px; line-height: 1.8; color: var(--soft); }
   .blind b { color: var(--ink); display:block; margin-bottom: 4px; font-size:13px; letter-spacing:2px; }
   .share-tip { text-align:center; color: var(--soft); font-size: 13px; margin-top: 18px; line-height:1.7; }
+  .tip-toggle { display:flex; align-items:center; justify-content:center; gap: 10px; margin-top: 16px; color: var(--soft); font-size: 15px; cursor:pointer; user-select:none; }
+  .tip-toggle input { width: 20px; height: 20px; accent-color: var(--coral); cursor:pointer; }
   #shot { display:none; }
 </style>
 </head>
@@ -111,9 +118,12 @@
     <div class="progress-bar"><i id="pbar"></i></div>
     <div class="progress-num" id="pnum">1/30</div>
   </div>
-  <div class="qtext" id="qtext"></div>
-  <div id="opts"></div>
-  <button class="back" id="backBtn" onclick="goBack()">← 返回上一题</button>
+  <div class="quiz-body">
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+    <button class="back" id="backBtn" onclick="goBack()">← 返回上一题</button>
+  </div>
 </div>
 
 <!-- 结果页 -->
@@ -128,6 +138,7 @@
     <div class="blind"><b>小 提 醒</b><span id="rblind"></span></div>
   </div>
   <div class="share-tip">长按屏幕截图，保存你的友情人格卡<br>去测测你最好的朋友是什么人格吧</div>
+  <label class="tip-toggle"><input type="checkbox" id="tipToggle" checked>结果图中包含「小提醒」</label>
   <button class="btn" onclick="saveShot()">保 存 结 果 图</button>
   <button class="btn ghost" onclick="location.reload()">再测一次</button>
   <canvas id="shot" width="750" height="1200"></canvas>
@@ -168,6 +179,7 @@ function renderQ(){
   const q = QUIZ.questions[idx];
   $('pbar').style.width = (idx / QUIZ.questions.length * 100) + '%';
   $('pnum').textContent = (idx+1) + '/' + QUIZ.questions.length;
+  $('qnum').innerHTML = '第 ' + (idx+1) + ' 题<small>单选，选完自动进入下一题</small>';
   $('qtext').textContent = q.q;
   const box = $('opts'); box.innerHTML = '';
   q.options.forEach((o, i) => {
@@ -247,9 +259,13 @@ function renderResult(rid, coord){
 }
 
 function saveShot(){
-  const c = $('shot'), x = c.getContext('2d');
+  const showTip = $('tipToggle').checked;
+  const c = $('shot');
+  const H2 = showTip ? 1400 : 1200;
+  c.height = H2;
+  const x = c.getContext('2d');
   const { name } = window._lastResult;
-  x.fillStyle = '#FFF7F0'; x.fillRect(0,0,750,1200);
+  x.fillStyle = '#FFF7F0'; x.fillRect(0,0,750,H2);
   x.fillStyle = '#E8836B'; x.font = '600 30px sans-serif'; x.textAlign='center';
   x.fillText('🫧', 375, 150);
   x.fillStyle = '#9B8B80'; x.font = '26px sans-serif';
@@ -272,13 +288,28 @@ function saveShot(){
     x.fillStyle = '#9B8B80'; x.font = '21px sans-serif';
     x.fillText(DIMTEXT[DIMS[i]][lv], 130, y+34);
   });
+  if (showTip) {
+    x.fillStyle = '#FFFFFF'; roundRect(x, 95, 1010, 560, 236, 20); x.fill();
+    x.fillStyle = '#D96A50'; x.font = '600 24px sans-serif';
+    x.fillText('小 提 醒', 130, 1058);
+    x.fillStyle = '#6F6156'; x.font = '24px sans-serif';
+    wrapL(x, meta.blind, 130, 1098, 492, 38);
+  }
   x.textAlign='center';
   x.fillStyle = '#9B8B80'; x.font = '24px sans-serif';
-  x.fillText('测测你最好的朋友是什么人格', 375, 1120);
+  x.fillText('测测你最好的朋友是什么人格', 375, showTip ? 1330 : 1120);
   const a = document.createElement('a');
   a.download = '我的友情人格_' + name + '.png';
   a.href = c.toDataURL('image/png');
   a.click();
+}
+function wrapL(x, text, lx, y, maxW, lh){
+  let line = '', yy = y;
+  for (const ch of text) {
+    if (x.measureText(line + ch).width > maxW) { x.fillText(line, lx, yy); line = ch; yy += lh; }
+    else line += ch;
+  }
+  if (line) x.fillText(line, lx, yy);
 }
 function wrap(x, text, cx, y, maxW, lh){
   let line = '', yy = y;
